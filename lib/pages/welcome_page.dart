@@ -1,6 +1,6 @@
 import 'dart:convert';
-
-import 'package:cash_track/data/notifiers.dart';
+import 'package:cash_track/constants/box_shadow_decoration.dart';
+import 'package:cash_track/data/global.dart';
 import 'package:cash_track/pages/home_page.dart';
 import 'package:cash_track/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
@@ -53,46 +53,71 @@ class _WelcomePageState extends State<WelcomePage> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Padding(
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.fromLTRB(
+          screenPadding,
+          0.0,
+          screenPadding,
+          24.0,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Spacer(),
-            Text(
-              'Welcome to Cash Track',
-              style: TextStyle(fontSize: 54, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Track. Grow. Save',
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.grey[400],
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 64),
-            Stack(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  height: 350.0,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(24, 72, 255, 0),
-                    borderRadius: BorderRadius.circular(32),
+                SizedBox(height: 30.0),
+                Text(
+                  'Welcome to \nCash Track',
+                  style: TextStyle(fontSize: 54, fontWeight: FontWeight.bold),
+                ),
+
+                Text(
+                  'Track. Grow. Save',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    color: Colors.grey[400],
+                    fontWeight: FontWeight.w400,
                   ),
                 ),
-                Lottie.asset('assets/lotties/money.json'),
               ],
             ),
-            SizedBox(height: 100.0),
-            ButtonWidget(
-              title: 'Get Started',
-              onTapped: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HomePage()),
-                );
-              },
+
+            Column(
+              children: [
+                Lottie.asset('assets/lotties/money.json'),
+
+                SizedBox(height: 50.0),
+
+                ButtonWidget(
+                  buttonDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16.0),
+                    color: isDarkMode(context) ? Colors.white : Colors.black,
+                    boxShadow: [BoxShadowStyles.defualtBoxShadow],
+                  ),
+                  onTapped: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  },
+                  content: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Text(
+                        'Get Started',
+                        style: TextStyle(
+                          color: isDarkMode(context)
+                              ? Colors.black
+                              : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 10.0),
+              ],
             ),
           ],
         ),

@@ -1,4 +1,4 @@
-import 'package:cash_track/data/notifiers.dart';
+import 'package:cash_track/data/global.dart';
 import 'package:cash_track/pages/welcome_page.dart';
 import 'package:flutter/material.dart';
 

@@ -14,17 +14,15 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24.0),
+      padding: const EdgeInsets.fromLTRB(24, 0.0, 24, 24.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (widget.title.isNotEmpty)
             Text(
               widget.title,
-              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
             ),
-          const SizedBox(height: 12),
-
           Flexible(child: widget.content),
         ],
       ),

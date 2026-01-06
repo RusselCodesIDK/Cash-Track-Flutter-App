@@ -1,8 +1,6 @@
-import 'package:cash_track/data/notifiers.dart';
-import 'package:cash_track/widgets/add_transaction_widget.dart';
+import 'package:cash_track/constants/box_shadow_decoration.dart';
+import 'package:cash_track/data/global.dart';
 import 'package:cash_track/widgets/balance_display_widget.dart';
-import 'package:cash_track/widgets/bottom_sheet_widget.dart';
-import 'package:cash_track/widgets/button_widget.dart';
 import 'package:cash_track/widgets/drawer_widget.dart';
 import 'package:cash_track/widgets/transaction_card_widget.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +24,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: screenPadding),
               child: Column(
                 children: [
                   BalanceDisplayWidget(),
@@ -41,76 +39,12 @@ class HomePage extends StatelessWidget {
                           Icon(Icons.history),
                           SizedBox(width: 10.0),
                           Text(
-                            'History',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            'Activity',
+                            style: TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ],
                       ),
-                      Row(
-                        children: [
-                          ButtonWidget(
-                            title: 'Deduct',
-                            textColor:
-                                Theme.brightnessOf(context) == Brightness.light
-                                ? Colors.white
-                                : Colors.black87,
-                            onTapped: () {
-                              showModalBottomSheet(
-                                showDragHandle: true,
-                                useSafeArea: true,
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (context) {
-                                  return BottomSheetWidget(
-                                    title: 'Deduct balance',
-                                    content: Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(
-                                          context,
-                                        ).viewInsets.bottom,
-                                      ),
-                                      child: AddTransactionWidget(add: false),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            buttonColor: Colors.red,
-                            buttonPadding: 15.0,
-                          ),
-                          SizedBox(width: 10.0),
-                          ButtonWidget(
-                            textColor:
-                                Theme.brightnessOf(context) == Brightness.light
-                                ? Colors.white
-                                : Colors.black87,
-                            title: 'Increase',
-                            onTapped: () {
-                              showModalBottomSheet(
-                                showDragHandle: true,
-                                useSafeArea: true,
-                                isScrollControlled: true,
-                                context: context,
-                                builder: (context) {
-                                  return BottomSheetWidget(
-                                    title: 'Increase balance',
-                                    content: Padding(
-                                      padding: EdgeInsets.only(
-                                        bottom: MediaQuery.of(
-                                          context,
-                                        ).viewInsets.bottom,
-                                      ),
-                                      child: AddTransactionWidget(add: true),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                            buttonColor: Colors.green,
-                            buttonPadding: 15.0,
-                          ),
-                        ],
-                      ),
+                      Row(children: [SizedBox(width: 10.0)]),
                     ],
                   ),
                 ],
@@ -118,32 +52,49 @@ class HomePage extends StatelessWidget {
             ),
             SizedBox(height: 24.0),
             Expanded(
-              child: ValueListenableBuilder(
-                valueListenable: transactionsListNotifier,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: screenPadding),
+                child: ClipRRect(
+                  borderRadius: BorderRadiusGeometry.circular(16.0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      boxShadow: [BoxShadowStyles.defualtBoxShadow],
+                      color: isDarkMode(context)
+                          ? const Color.fromARGB(115, 56, 56, 56)
+                          : const Color.fromARGB(255, 228, 228, 228),
+                    ),
+                    child: ValueListenableBuilder(
+                      valueListenable: transactionsListNotifier,
 
-                builder: (context, value, child) {
-                  // cast to proper type
+                      builder: (context, value, child) {
+                        // cast to proper type
 
-                  if (value.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No transactions yet',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                    );
-                  }
+                        if (value.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No transactions yet',
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 16,
+                              ),
+                            ),
+                          );
+                        }
 
-                  return ListView.builder(
-                    itemCount: value.length,
-                    itemBuilder: (context, index) {
-                      final transaction = value[index];
-                      return TransactionCardWidget(
-                        transactionName: transaction['title'],
-                        price: transaction['price'],
-                      );
-                    },
-                  );
-                },
+                        return ListView.builder(
+                          itemCount: value.length,
+                          itemBuilder: (context, index) {
+                            final transaction = value[index];
+                            return TransactionCardWidget(
+                              transactionName: transaction['title'],
+                              price: transaction['price'],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
           ],

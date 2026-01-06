@@ -1,4 +1,7 @@
-import 'package:cash_track/data/notifiers.dart';
+import 'package:cash_track/constants/box_shadow_decoration.dart';
+import 'package:cash_track/data/global.dart';
+import 'package:cash_track/widgets/bottom_sheet_widget.dart';
+import 'package:cash_track/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 
 class TransactionCardWidget extends StatefulWidget {
@@ -18,93 +21,212 @@ class TransactionCardWidget extends StatefulWidget {
 class _TransactionCardWidgetState extends State<TransactionCardWidget> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 5.0),
-      child: GestureDetector(
-        child: Container(
+    return Material(
+      color: Colors.transparent, // important for InkWell ripple
+      child: InkWell(
+        onTap: () {
+          showModalBottomSheet(
+            showDragHandle: true,
+            useSafeArea: true,
+            isScrollControlled: true,
+            context: context,
+            builder: (context) {
+              return BottomSheetWidget(
+                title: 'Edit Transaction',
+                content: Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: EditTransaction(
+                    transactionName: widget.transactionName,
+                  ),
+                ),
+              );
+            },
+          );
+        },
+        child: Ink(
           decoration: BoxDecoration(
-            color: Theme.brightnessOf(context) == Brightness.dark
-                ? const Color.fromARGB(255, 28, 28, 28)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: [
-              BoxShadow(
-                color: const Color.fromARGB(52, 0, 0, 0),
-                offset: Offset(0, 4),
-                blurRadius: 10.0,
-                spreadRadius: 1.0,
+            border: Border(
+              bottom: BorderSide(
+                width: 1.0,
+                color: isDarkMode(context)
+                    ? const Color.fromARGB(255, 89, 89, 89)
+                    : const Color.fromARGB(255, 201, 201, 201),
               ),
-            ],
+            ),
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 20.0,
               vertical: 20.0,
             ),
-            child: Column(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      widget.transactionName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Row(
-                      children: [
-                        Text(
-                          '${widget.price > 0.0 ? '+' : '-'}R${widget.price.abs()}',
-                          style: TextStyle(
-                            color: widget.price > 0.0
-                                ? Colors.green
-                                : Colors.red,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16.0,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            // Find the transaction first
-                            final transaction = transactionsListNotifier.value
-                                .firstWhere(
-                                  (tx) => tx['title'] == widget.transactionName,
-                                  orElse: () => {}, // in case it's not found
-                                );
-
-                            if (transaction.isNotEmpty) {
-                              // Subtract its price from balance
-                              setBalance(
-                                balanceNotifier.value -
-                                    (transaction['price'] as double),
-                              );
-
-                              // Remove the transaction from the list
-                              transactionsListNotifier
-                                  .value = transactionsListNotifier.value
-                                  .where(
-                                    (tx) =>
-                                        tx['title'] != widget.transactionName,
-                                  )
-                                  .toList();
-
-                              // Save the updated list
-                              saveTransactions();
-                            }
-                          },
-                          icon: Icon(Icons.delete),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  widget.transactionName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  '${widget.price > 0.0 ? '+' : '-'}R${widget.price.abs()}',
+                  style: TextStyle(
+                    color: widget.price > 0.0 ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16.0,
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class EditTransaction extends StatefulWidget {
+  const EditTransaction({super.key, required this.transactionName});
+
+  final String transactionName;
+
+  @override
+  State<EditTransaction> createState() => _EditTransactionState();
+}
+
+class _EditTransactionState extends State<EditTransaction> {
+  TextEditingController transactionPriceTextController =
+      TextEditingController();
+  TextEditingController transactionNameTextController = TextEditingController();
+
+  Map<String, dynamic> getTransaction() {
+    return transactionsListNotifier.value.firstWhere(
+      (tx) => tx['title'] == widget.transactionName,
+      orElse: () => {},
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    final transaction = getTransaction();
+    transactionNameTextController.text = transaction['title'];
+    transactionPriceTextController.text = transaction['price'].toString();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(height: 12.0),
+        TextField(
+          controller: transactionNameTextController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            hintText: 'Transaction name',
+          ),
+        ),
+        SizedBox(height: 12.0),
+        TextField(
+          controller: transactionPriceTextController,
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(16.0),
+            ),
+            hintText: 'Transaction price',
+          ),
+        ),
+        SizedBox(height: 12.0),
+        ButtonWidget(
+          buttonDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            color: isDarkMode(context) ? Colors.white : Colors.black,
+            boxShadow: [BoxShadowStyles.defualtBoxShadow],
+          ),
+          onTapped: () {
+            if (transactionNameTextController.text.isEmpty ||
+                transactionPriceTextController.text.isEmpty) {
+              return;
+            }
+
+            final newTitle = transactionNameTextController.text;
+            final newPrice = double.parse(transactionPriceTextController.text);
+
+            final oldList = transactionsListNotifier.value;
+
+            final updatedList = oldList.map((tx) {
+              if (tx['title'] == widget.transactionName) {
+                return {'title': newTitle, 'price': newPrice};
+              }
+              return tx;
+            }).toList();
+
+            // Fix balance properly
+            final oldTransaction = oldList.firstWhere(
+              (tx) => tx['title'] == widget.transactionName,
+            );
+
+            setBalance(
+              balanceNotifier.value -
+                  (oldTransaction['price'] as double) +
+                  newPrice,
+            );
+
+            transactionsListNotifier.value = updatedList;
+            saveTransactions();
+            Navigator.pop(context);
+          },
+
+          content: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: isDarkMode(context) ? Colors.black : Colors.white,
+                ),
+              ),
+            ),
+          ),
+        ),
+        Divider(height: 24),
+        ButtonWidget(
+          buttonDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16.0),
+            color: const Color.fromARGB(255, 187, 0, 0),
+            boxShadow: [BoxShadowStyles.defualtBoxShadow],
+          ),
+          onTapped: () {
+            final transaction = getTransaction();
+
+            if (transaction.isNotEmpty) {
+              setBalance(
+                balanceNotifier.value - (transaction['price'] as double),
+              );
+
+              transactionsListNotifier.value = transactionsListNotifier.value
+                  .where((tx) => tx['title'] != widget.transactionName)
+                  .toList();
+
+              saveTransactions();
+            }
+            Navigator.pop(context);
+          },
+          content: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Text('Delete', style: TextStyle(color: Colors.white)),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

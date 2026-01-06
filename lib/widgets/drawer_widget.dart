@@ -1,4 +1,4 @@
-import 'package:cash_track/data/notifiers.dart';
+import 'package:cash_track/data/global.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
